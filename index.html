@@ -31,7 +31,7 @@
   .seeds::-webkit-scrollbar{display:none}
   .seed{flex:0 0 auto;width:74px;height:86px;border-radius:18px;border:2px solid transparent;background:var(--card);
     display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;font-size:11px;color:var(--muted);box-shadow:0 1px 3px #0001;padding:5px 3px 6px;line-height:1.1;text-align:center}
-  .seed svg{height:50px;width:62px}
+  .seed svg{height:52px;width:64px}
   .seed.sel{border-color:var(--green);color:var(--ink);font-weight:600}
   .seg{display:flex;background:#dfe9d9;border-radius:14px;padding:3px;margin:4px 0 6px}
   .seg button{flex:1;border:0;background:transparent;border-radius:11px;padding:9px 0;font-size:15px;font-weight:600;color:var(--muted)}
@@ -153,6 +153,7 @@ function renderSeeds(){
   $('preview').innerHTML = closeupSVG(seed,1,{pot:usePot});
   $('seedName').textContent = SEEDS[seed].name; $('seedDesc').textContent = SEEDS[seed].desc;
   document.querySelectorAll('#where button').forEach(b=> b.classList.toggle('on', (b.dataset.pot==='1')===usePot));
+  $('where').style.visibility = SEEDS[seed].noPot ? 'hidden' : 'visible';
 }
 function renderDur(){ const [v,u]=fmtDur(minutes); $('durVal').textContent=v; $('durUnit').textContent=u; $('dur').value=minutes; $('dur').style.setProperty('--fill',((minutes-5)/235*100)+'%'); }
 $('seeds').addEventListener('click', e=>{ const b=e.target.closest('.seed'); if(!b) return; seed=b.dataset.seed; store.set('seed',seed); renderSeeds(); });
@@ -162,7 +163,7 @@ $('dur').addEventListener('input', e=>{ minutes=+e.target.value; store.set('minu
 /* ---------- session ---------- */
 function startSession(){
   unlockAudio(); const now=Date.now();
-  session={seed, pot:usePot, minutes, start:now, end:now+minutes*60000, hiddenAt:null}; store.set('session',session);
+  session={seed, pot:usePot && !SEEDS[seed].noPot, minutes, start:now, end:now+minutes*60000, hiddenAt:null}; store.set('session',session);
   show('grow'); requestWake(); clearInterval(ticker); ticker=setInterval(tick,500); lastDrawn=-1; tick();
 }
 const progress = ()=> clamp((Date.now()-session.start)/(session.end-session.start));
@@ -215,9 +216,18 @@ function chime(){ if(!audioCtx) return; try{ const t0=audioCtx.currentTime;
     o.connect(g).connect(audioCtx.destination); o.start(t0+i*.14); o.stop(t0+i*.14+1.3); }); }catch(e){} }
 
 /* ---------- garden ---------- */
+// movable garden pieces: the pond and the table set
+let furniture = store.get('furniture', null);
+if(!furniture || !furniture.find(f=>f.kind==='pond')) furniture = [{id:'pond',kind:'pond',x:78,y:214},{id:'bistro',kind:'bistro',x:205,y:97}];
+const saveFurniture = ()=> store.set('furniture', furniture);
+const pondItem = ()=> furniture.find(f=>f.kind==='pond');
 const placed = ()=> history.filter(h=>SEEDS[h.seed] && h.x!=null);
 const pending = ()=> history.filter(h=>SEEDS[h.seed] && h.x==null);
-let lifted=null; // {entry, dx, dy} while moving a plant
+const allItems = ()=> furniture.concat(placed());
+// older plants that ended up inside the pond move to its edge
+placed().forEach(e=>{ const p=outOfPond(e.x,e.y,pondItem()); e.x=p.x; e.y=p.y; });
+
+let lifted=null; // {entry, dx, dy, from:{x,y}} while moving something
 
 function renderStats(){
   const today=new Date().toDateString(), ok=history.filter(h=>h.ok);
@@ -229,65 +239,77 @@ function renderStats(){
 let drawQueued=false;
 function renderPlot(){
   if(drawQueued) return; drawQueued=true;
-  requestAnimationFrame(()=>{ drawQueued=false; $('plotSvg').innerHTML = gardenSVG(placed(), lifted&&lifted.entry.id); });
+  requestAnimationFrame(()=>{ drawQueued=false; $('plotSvg').innerHTML = gardenSVG(allItems(), lifted&&lifted.entry.id); });
 }
+function hint(t){ $('gardenHint').textContent=t; }
 function renderBanner(){
   const next = pending()[0];
   if(next){ const n=SEEDS[next.seed].name.toLowerCase();
     $('banner').textContent = next.ok ? `Tap the grass to plant your ${n}` : `Tap the grass to place your withered ${n}`; }
   $('banner').classList.toggle('show', !!next);
-  $('gardenHint').textContent = next ? 'Higher up is further back, so plants there look smaller.'
-                              : placed().length ? 'Hold a plant to move it.' : 'Your garden is still empty. Plant your first seed to start growing.';
+  hint(next ? 'Higher up is further back, so plants there look smaller.'
+            : placed().length ? 'Hold a plant, the pond or the table to move it.' : 'Your garden is still empty. Plant your first seed to start growing.');
 }
 function openGarden(){ renderStats(); renderBanner(); renderPlot(); show('garden'); }
 $('toGarden').addEventListener('click', openGarden);
 $('back').addEventListener('click', ()=> show('home'));
 
-// pointer -> scene coordinates
 function scenePt(ev){ const r=$('plot').getBoundingClientRect(); return {x:(ev.clientX-r.left)/r.width*260, y:(ev.clientY-r.top)/r.height*260}; }
-// keep the whole plant inside the garden (tall plants can't go all the way to the back)
+// keep the whole item inside the garden (tall plants can't go all the way to the back)
 function clampPos(x,y,e){
   x=clamp(x,6,254); y=clamp(y,40,254);
-  while(y<254 && placedBox({...e,x,y}).y1<3) y+=1;
+  while(y<254 && itemBox({...e,x,y}).y1<3) y+=1;
   return {x,y};
 }
-function plantAt(pt){
-  // front-most plant whose box contains the point
-  return placed().filter(e=>{ const b=placedBox(e), m=4; return pt.x>=b.x1-m && pt.x<=b.x2+m && pt.y>=b.y1-m && pt.y<=b.y2+m; })
-                 .sort((a,b)=>b.y-a.y)[0];
+function itemAt(pt){
+  const m=4, hit = allItems().filter(e=> e.kind!=='pond').filter(e=>{ const b=itemBox(e); return pt.x>=b.x1-m && pt.x<=b.x2+m && pt.y>=b.y1-m && pt.y<=b.y2+m; })
+                   .sort((a,b)=>b.y-a.y)[0];
+  if(hit) return hit;
+  const pond=pondItem(); return inPond(pt.x,pt.y,pond) ? pond : null;
+}
+// is this spot allowed for the item?
+function fits(e){
+  const pond=pondItem();
+  if(e.kind==='pond') return allItems().filter(o=>o!==e).every(o=> feet(o).every(([x,y])=>!inPond(x,y,e)));
+  return feet(e).every(([x,y])=>!inPond(x,y,pond));
 }
 let press=null;
 $('plot').addEventListener('pointerdown', ev=>{
-  const pt=scenePt(ev);
-  press={pt, id:ev.pointerId, timer:null};
-  const target = pending().length ? null : plantAt(pt);
+  const pt=scenePt(ev); press={pt, id:ev.pointerId, timer:null};
+  const target = pending().length ? null : itemAt(pt);
   if(target){
     press.timer = setTimeout(()=>{
-      lifted={entry:target, dx:target.x-pt.x, dy:target.y-pt.y};
-      $('plot').setPointerCapture(press.id);
-      $('gardenHint').textContent='Drag to move, let go to plant it here.';
-      if(navigator.vibrate) navigator.vibrate(10);
+      lifted={entry:target, dx:target.x-pt.x, dy:target.y-pt.y, from:{x:target.x,y:target.y}};
+      try{ $('plot').setPointerCapture(press.id); }catch(e){}
+      hint('Drag to move, let go to put it down.');
       renderPlot();
     }, 420);
   }
 });
 $('plot').addEventListener('pointermove', ev=>{
   if(!press) return; const pt=scenePt(ev);
-  if(!lifted){ if(Math.hypot(pt.x-press.pt.x, pt.y-press.pt.y)>4){ clearTimeout(press.timer); } return; }
+  if(!lifted){ if(Math.hypot(pt.x-press.pt.x, pt.y-press.pt.y)>4) clearTimeout(press.timer); return; }
   const p=clampPos(pt.x+lifted.dx, pt.y+lifted.dy, lifted.entry); lifted.entry.x=+p.x.toFixed(1); lifted.entry.y=+p.y.toFixed(1); renderPlot();
 });
+function drop(){
+  const e=lifted.entry; let msg=null;
+  if(e.kind==='pond'){ if(!fits(e)){ e.x=lifted.from.x; e.y=lifted.from.y; msg="The pond can't go on top of plants or the table, so it went back."; } }
+  else if(e.kind==='bistro'){ if(!fits(e)){ e.x=lifted.from.x; e.y=lifted.from.y; msg="The table set can't stand in the pond, so it went back."; } }
+  else { const p=outOfPond(e.x,e.y,pondItem()); const q=clampPos(p.x,p.y,e); e.x=+q.x.toFixed(1); e.y=+q.y.toFixed(1); }
+  lifted=null; saveHistory(); saveFurniture(); renderBanner(); if(msg) hint(msg); renderPlot();
+}
 function endPress(ev){
   if(!press) return; clearTimeout(press.timer);
   const pt=scenePt(ev), moved=Math.hypot(pt.x-press.pt.x, pt.y-press.pt.y);
-  if(lifted){ lifted=null; saveHistory(); renderBanner(); renderPlot(); }
+  if(lifted) drop();
   else if(pending().length && moved<10){
-    const e=pending()[0], p=clampPos(pt.x,pt.y,e); e.x=+p.x.toFixed(1); e.y=+p.y.toFixed(1);
+    const e=pending()[0], p0=outOfPond(pt.x,pt.y,pondItem()), p=clampPos(p0.x,p0.y,e); e.x=+p.x.toFixed(1); e.y=+p.y.toFixed(1);
     saveHistory(); renderBanner(); renderPlot();
   }
   press=null;
 }
 $('plot').addEventListener('pointerup', endPress);
-$('plot').addEventListener('pointercancel', ()=>{ if(press) clearTimeout(press.timer); if(lifted){ lifted=null; saveHistory(); renderPlot(); } press=null; });
+$('plot').addEventListener('pointercancel', ()=>{ if(press) clearTimeout(press.timer); if(lifted) drop(); press=null; });
 $('plot').addEventListener('contextmenu', e=>e.preventDefault());
 
 /* ---------- boot ---------- */
