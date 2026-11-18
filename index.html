@@ -12,82 +12,63 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Focus Garden</title>
 <style>
-  :root{
-    --bg:#eef5e9; --bg2:#dcebd3; --ink:#24372a; --muted:#6c8270;
-    --green:#4f9a5b; --green-d:#3a7a45; --card:#ffffffcc; --red:#c0533f;
-  }
+  :root{ --bg:#eef5e9; --bg2:#dcebd3; --ink:#24372a; --muted:#6c8270; --green:#4f9a5b; --green-d:#3a7a45; --card:#ffffffcc; --red:#c0533f; }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;overscroll-behavior:none}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Segoe UI",system-ui,sans-serif;
-    color:var(--ink);
-    background:linear-gradient(180deg,#f6faf2 0%,var(--bg) 55%,var(--bg2) 100%);
-    -webkit-user-select:none;user-select:none;
-  }
-  .app{position:fixed;inset:0;display:flex;flex-direction:column;
-    padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 12px)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,#f6faf2 0%,var(--bg) 55%,var(--bg2) 100%);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .app{position:fixed;inset:0;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 12px)}
   .screen{display:none;flex:1;flex-direction:column;min-height:0}
   .screen.active{display:flex}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px}
   h1{font-size:22px;margin:0;font-weight:700;letter-spacing:-.3px}
-  .iconbtn{border:0;background:var(--card);border-radius:14px;padding:9px 13px;font-size:15px;
-    color:var(--ink);font-weight:600;box-shadow:0 1px 3px #0001}
-  .stage{flex:1;min-height:180px;display:flex;align-items:center;justify-content:center;position:relative}
-  .stage svg{height:100%;max-height:360px;width:auto;overflow:visible}
-  .seedname{text-align:center;font-weight:600;font-size:18px;margin:2px 0 2px}
-  .seeddesc{text-align:center;color:var(--muted);font-size:14px;margin-bottom:14px;min-height:18px}
-  .seeds{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none;margin:0 -20px;padding-left:20px;padding-right:20px}
+  .iconbtn{border:0;background:var(--card);border-radius:14px;padding:9px 13px;font-size:15px;color:var(--ink);font-weight:600;box-shadow:0 1px 3px #0001}
+  .stage{flex:1;min-height:150px;display:flex;align-items:flex-end;justify-content:center;position:relative;padding:6px 0}
+  .stage svg{height:100%;max-height:340px;width:100%;overflow:visible}
+  .seedname{text-align:center;font-weight:600;font-size:18px;margin:4px 0 2px}
+  .seeddesc{text-align:center;color:var(--muted);font-size:14px;margin-bottom:10px;min-height:18px}
+  .seeds{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:4px 20px 10px}
   .seeds::-webkit-scrollbar{display:none}
-  .seed{flex:0 0 auto;width:72px;height:84px;border-radius:18px;border:2px solid transparent;background:var(--card);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--muted);
-    box-shadow:0 1px 3px #0001;padding:4px}
-  .seed svg{height:54px;width:auto}
+  .seed{flex:0 0 auto;width:74px;height:86px;border-radius:18px;border:2px solid transparent;background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;font-size:11px;color:var(--muted);box-shadow:0 1px 3px #0001;padding:5px 3px 6px;line-height:1.1;text-align:center}
+  .seed svg{height:50px;width:62px}
   .seed.sel{border-color:var(--green);color:var(--ink);font-weight:600}
-  .dur{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:8px 0 4px}
-  .dur b{font-size:40px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+  .seg{display:flex;background:#dfe9d9;border-radius:14px;padding:3px;margin:4px 0 6px}
+  .seg button{flex:1;border:0;background:transparent;border-radius:11px;padding:9px 0;font-size:15px;font-weight:600;color:var(--muted)}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px #0002}
+  .dur{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:6px 0 0}
+  .dur b{font-size:38px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums}
   .dur span{color:var(--muted);font-size:16px}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0}
-  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;
-    background:linear-gradient(90deg,var(--green) var(--fill,10%),#cfdcc9 var(--fill,10%))}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;
-    background:#fff;margin-top:-11px;box-shadow:0 2px 6px #0003;border:0}
-  .quick{display:flex;justify-content:space-between;gap:6px;margin:6px 0 16px}
-  .quick button{flex:1;border:0;border-radius:12px;padding:9px 0;background:var(--card);color:var(--ink);font-size:14px;font-weight:600;box-shadow:0 1px 2px #0001}
-  .primary{border:0;border-radius:20px;padding:17px;font-size:18px;font-weight:700;color:#fff;
-    background:linear-gradient(180deg,#5aab66,var(--green-d));box-shadow:0 6px 16px #3a7a4555;width:100%}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:40px;background:transparent;margin:0 0 12px}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--green) var(--fill,10%),#cfdcc9 var(--fill,10%))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;margin-top:-11px;box-shadow:0 2px 6px #0003;border:0}
+  .primary{border:0;border-radius:20px;padding:17px;font-size:18px;font-weight:700;color:#fff;background:linear-gradient(180deg,#5aab66,var(--green-d));box-shadow:0 6px 16px #3a7a4555;width:100%}
   .primary:active{transform:scale(.98)}
   .ghost{border:0;background:transparent;color:var(--muted);font-size:15px;font-weight:600;padding:14px;width:100%}
-  /* growing */
   .countdown{text-align:center;font-size:56px;font-weight:700;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;margin-top:8px}
   .hint{text-align:center;color:var(--muted);font-size:14px;line-height:1.4;margin:4px 12px 10px}
   .bar{height:6px;border-radius:6px;background:#cfdcc9;overflow:hidden;margin:6px 10px 8px}
   .bar i{display:block;height:100%;width:0;background:var(--green);transition:width .3s linear}
-  .sway{transform-box:view-box;transform-origin:100px 198px;animation:sway 5s ease-in-out infinite}
-  @keyframes sway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
-  .dead .plant{filter:grayscale(.75) sepia(.7) brightness(.78)}
-  .dead .sway{animation:none}
-  /* sheets */
+  .sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5s ease-in-out infinite}
+  @keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+  .wilt{filter:grayscale(.75) sepia(.7) brightness(.78)}
   .overlay{position:fixed;inset:0;background:#1d2b2066;display:none;align-items:flex-end;z-index:10}
   .overlay.show{display:flex}
-  .sheet{background:#fbfdf9;width:100%;border-radius:26px 26px 0 0;padding:22px 22px calc(env(safe-area-inset-bottom) + 18px);
-    text-align:center;animation:up .25s ease-out}
+  .sheet{background:#fbfdf9;width:100%;border-radius:26px 26px 0 0;padding:22px 22px calc(env(safe-area-inset-bottom) + 18px);text-align:center;animation:up .25s ease-out}
   @keyframes up{from{transform:translateY(40px);opacity:0}}
   .sheet h2{margin:4px 0 6px;font-size:22px}
   .sheet p{margin:0 0 16px;color:var(--muted);line-height:1.45}
-  .sheet .stage{height:190px;flex:none}
-  .danger{background:linear-gradient(180deg,#d0644f,var(--red));box-shadow:0 6px 16px #c0533f44}
-  /* garden */
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}
-  .stat{background:var(--card);border-radius:16px;padding:12px 8px;text-align:center;box-shadow:0 1px 3px #0001}
-  .stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+  .sheet .stage{height:200px;flex:none}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 12px}
+  .stat{background:var(--card);border-radius:16px;padding:10px 6px;text-align:center;box-shadow:0 1px 3px #0001}
+  .stat b{display:block;font-size:21px;font-variant-numeric:tabular-nums}
   .stat span{font-size:12px;color:var(--muted)}
-  .scroll{flex:1;overflow-y:auto;margin:0 -20px;padding:0 20px 20px;-webkit-overflow-scrolling:touch}
-  .day{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 2px 8px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .tile{background:var(--card);border-radius:16px;padding:8px 4px 8px;text-align:center;font-size:12px;color:var(--muted);box-shadow:0 1px 3px #0001}
-  .tile svg{height:84px;width:auto}
-  .tile b{display:block;color:var(--ink);font-size:13px}
-  .empty{text-align:center;color:var(--muted);margin-top:40px;line-height:1.5}
+  .plot{position:relative;width:100%;aspect-ratio:1;border-radius:20px;overflow:hidden;box-shadow:0 2px 10px #0002;touch-action:none}
+  .plot svg{width:100%;height:100%;display:block}
+  .banner{position:absolute;left:10px;right:10px;top:10px;background:#ffffffee;border-radius:14px;padding:10px 12px;font-size:14px;font-weight:600;
+    text-align:center;box-shadow:0 2px 8px #0002;display:none;pointer-events:none}
+  .banner.show{display:block}
+  .gardenhint{text-align:center;color:var(--muted);font-size:13px;margin-top:12px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -95,20 +76,14 @@
 
   <!-- HOME -->
   <section class="screen active" id="home">
-    <header>
-      <h1>Focus Garden</h1>
-      <button class="iconbtn" id="toGarden">🌿 Garden</button>
-    </header>
+    <header><h1>Focus Garden</h1><button class="iconbtn" id="toGarden">🌿 Garden</button></header>
     <div class="stage" id="preview"></div>
     <div class="seedname" id="seedName"></div>
     <div class="seeddesc" id="seedDesc"></div>
     <div class="seeds" id="seeds"></div>
+    <div class="seg" id="where"><button data-pot="0">In the earth</button><button data-pot="1">In a pot</button></div>
     <div class="dur"><b id="durVal">25</b><span id="durUnit">min</span></div>
     <input type="range" id="dur" min="5" max="240" step="5" value="25">
-    <div class="quick">
-      <button data-m="15">15m</button><button data-m="25">25m</button><button data-m="45">45m</button>
-      <button data-m="60">1h</button><button data-m="120">2h</button><button data-m="240">4h</button>
-    </div>
     <button class="primary" id="start">Plant seed</button>
   </section>
 
@@ -116,414 +91,210 @@
   <section class="screen" id="grow">
     <div class="countdown" id="clock">25:00</div>
     <div class="bar"><i id="barFill"></i></div>
-    <div class="hint" id="growHint">Stay in the app while your plant grows.<br>Leave it and your plant dies.</div>
+    <div class="hint">Stay in the app while your plant grows.<br>Leave it and your plant dies.</div>
     <div class="stage" id="growStage"></div>
     <button class="ghost" id="giveUp">Give up</button>
   </section>
 
   <!-- GARDEN -->
   <section class="screen" id="garden">
-    <header>
-      <button class="iconbtn" id="back">‹ Back</button>
-      <h1>My garden</h1>
-      <span style="width:70px"></span>
-    </header>
+    <header><button class="iconbtn" id="back">‹ Back</button><h1>My garden</h1><span style="width:70px"></span></header>
     <div class="stats">
       <div class="stat"><b id="stToday">0</b><span>min today</span></div>
       <div class="stat"><b id="stGrown">0</b><span>plants grown</span></div>
       <div class="stat"><b id="stTotal">0h</b><span>total focus</span></div>
     </div>
-    <div class="scroll" id="gardenList"></div>
+    <div class="plot" id="plot"><div id="plotSvg"></div><div class="banner" id="banner"></div></div>
+    <div class="gardenhint" id="gardenHint">Hold a plant to move it.</div>
   </section>
 </div>
 
-<!-- give up confirm -->
-<div class="overlay" id="confirm">
-  <div class="sheet">
-    <h2>Give up?</h2>
-    <p>Your plant will wither and end up in your garden as a dead plant.</p>
-    <button class="primary" id="keep">Keep focusing</button>
-    <button class="ghost" id="reallyGiveUp" style="color:var(--red)">Give up</button>
-  </div>
-</div>
+<div class="overlay" id="confirm"><div class="sheet">
+  <h2>Give up?</h2><p>Your plant will wither. It still goes in your garden, as a withered plant.</p>
+  <button class="primary" id="keep">Keep focusing</button>
+  <button class="ghost" id="reallyGiveUp" style="color:var(--red)">Give up</button>
+</div></div>
 
-<!-- result -->
-<div class="overlay" id="result">
-  <div class="sheet">
-    <div class="stage" id="resultStage"></div>
-    <h2 id="resTitle"></h2>
-    <p id="resText"></p>
-    <button class="primary" id="resOk">Back to my garden</button>
-  </div>
-</div>
+<div class="overlay" id="result"><div class="sheet">
+  <div class="stage" id="resultStage"></div>
+  <h2 id="resTitle"></h2><p id="resText"></p>
+  <button class="primary" id="resOk">Place it in my garden</button>
+</div></div>
 
+<script src="garden.js"></script>
 <script>
-/* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
-const clamp = (x,a=0,b=1) => Math.min(b,Math.max(a,x));
-const seg = (p,a,b) => clamp((p-a)/(b-a));
-const ease = t => 1 - Math.pow(1-t,3);
 const GRACE_MS = 5000; // short grace for accidental swipes (e.g. notification centre)
 const store = {
-  get(k,d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
   del(k){ try{ localStorage.removeItem(k); }catch(e){} }
 };
 
-/* ---------- plant drawing ---------- */
-const SEEDS = {
-  sunflower:{name:'Sunflower', desc:'Tall and cheerful. Opens up at the very end.'},
-  tulip:    {name:'Tulip',     desc:'Classic and quick to show colour.'},
-  lavender: {name:'Lavender',  desc:'Calm purple spikes, one bud at a time.'},
-  cactus:   {name:'Cactus',    desc:'Slow and steady, with a pink flower on top.'},
-  cherry:   {name:'Cherry tree', desc:'A little bonsai that blossoms pink.'},
-  fern:     {name:'Fern',      desc:'Fronds that keep unfurling.'}
-};
-
-function pot(){
-  return `<g class="pot">
-    <path d="M64 206 L136 206 L128 252 Q100 258 72 252 Z" fill="#c9744d"/>
-    <path d="M64 206 L136 206 L134 216 L66 216 Z" fill="#b5653f" opacity=".6"/>
-    <rect x="56" y="194" width="88" height="15" rx="5" fill="#dc8a62"/>
-    <ellipse cx="100" cy="197" rx="40" ry="4.5" fill="#5b3a29"/>
-  </g>`;
-}
-function leaf(x,y,size,side,angle,k,color='#5cae5a',vein='#3f8a43'){
-  if(k<=0.01) return '';
-  const s=size;
-  return `<g transform="translate(${x} ${y}) scale(${side} 1) rotate(${angle}) scale(${k})">
-    <path d="M0 0 Q${s*.45} ${-s*.42} ${s} 0 Q${s*.5} ${s*.3} 0 0Z" fill="${color}"/>
-    <path d="M1 0 L${s*.85} -1" stroke="${vein}" stroke-width="1.2" fill="none" opacity=".6"/>
-  </g>`;
-}
-function seedling(p){
-  // seed + tiny sprout for very early progress
-  const k = ease(seg(p,0,0.06));
-  let s = `<ellipse cx="100" cy="194" rx="5" ry="3.5" fill="#8a5a36"/>`;
-  if(k>0) s += `<path d="M100 196 L100 ${196-8*k}" stroke="#5cae5a" stroke-width="2.5" stroke-linecap="round"/>`
-            + leaf(100,196-8*k,9,1,-30,k) + leaf(100,196-8*k,9,-1,-30,k);
-  return s;
-}
-
-function stemPlant(p, maxH, top){
-  const h = 4 + maxH*ease(seg(p,0.03,0.75));
-  const tx = 100, ty = 198-h;
-  return {h, tx, ty, stem:`<path d="M100 198 Q${104} ${198-h*.5} ${tx} ${ty}" stroke="#4e9a4f" stroke-width="${3+2*seg(p,0,.6)}" fill="none" stroke-linecap="round"/>`};
-}
-
-const DRAW = {
-  sunflower(p){
-    const {h,tx,ty,stem} = stemPlant(p,150);
-    let s = stem;
-    [[.25,1,.12],[.4,-1,.25],[.55,1,.38],[.68,-1,.5]].forEach(([t,side,th])=>{
-      s += leaf(101,198-h*t,30,side,-20,ease(seg(p,th,th+.14)));
-    });
-    const b = ease(seg(p,.72,1));
-    if(p>.6){
-      if(b<.3){ s += `<circle cx="${tx}" cy="${ty}" r="${5+b*25}" fill="#6aa84f"/>`; }
-      else{
-        const R = 12+22*b;
-        let petals='';
-        for(let i=0;i<16;i++) petals += `<ellipse cx="0" cy="${-R*.62}" rx="${R*.17}" ry="${R*.42}" fill="${i%2?'#f6c431':'#ffd43b'}" transform="rotate(${i*22.5})"/>`;
-        s += `<g transform="translate(${tx} ${ty})">${petals}<circle r="${R*.42}" fill="#6b3e1f"/><circle r="${R*.3}" fill="#7d4a26"/></g>`;
-      }
-    }
-    return s;
-  },
-  tulip(p){
-    const {h,tx,ty,stem} = stemPlant(p,105);
-    let s = stem;
-    const l1 = ease(seg(p,.08,.4)), l2 = ease(seg(p,.2,.55));
-    if(l1>0) s += `<path d="M100 198 Q${80-10*l1} ${198-40*l1} ${84-6*l1} ${198-70*l1} Q${96} ${198-35*l1} 100 198Z" fill="#5cae5a"/>`;
-    if(l2>0) s += `<path d="M100 198 Q${120+10*l2} ${198-35*l2} ${117+4*l2} ${198-60*l2} Q${104} ${198-30*l2} 100 198Z" fill="#4f9f4d"/>`;
-    const b = ease(seg(p,.65,1));
-    if(p>.55){
-      if(b<.25){ s += `<ellipse cx="${tx}" cy="${ty-6}" rx="${4+b*12}" ry="${8+b*16}" fill="#7ab55c"/>`; }
-      else{
-        const k = .45+.55*b;
-        s += `<g transform="translate(${tx} ${ty+2}) scale(${k})">
-          <path d="M-15 0 Q-20 -26 -6 -36 Q-2 -18 0 -4Z" fill="#c8323f"/>
-          <path d="M15 0 Q20 -26 6 -36 Q2 -18 0 -4Z" fill="#c8323f"/>
-          <path d="M-12 2 Q-14 -24 0 -38 Q14 -24 12 2 Q0 8 -12 2Z" fill="#e5484d"/>
-          <path d="M-4 -6 Q-2 -24 0 -32" stroke="#ff8a8e" stroke-width="2" fill="none" opacity=".6"/>
-        </g>`;
-      }
-    }
-    return s;
-  },
-  lavender(p){
-    const g = ease(seg(p,.03,.75));
-    let s='';
-    // base leaves
-    [[-1,-55],[1,-55],[-1,-35],[1,-35]].forEach(([side,a],i)=>{
-      s += leaf(100,197,22,side,a,ease(seg(p,.05+i*.06,.25+i*.06)),'#8fb38a','#6d9468');
-    });
-    const b = seg(p,.6,1);
-    [[-14,.85],[0,1],[14,.9]].forEach(([ang,f],si)=>{
-      const h = 6+120*g*f;
-      s += `<g transform="rotate(${ang} 100 198)">
-        <path d="M100 198 L100 ${198-h}" stroke="#7aa070" stroke-width="2.4" stroke-linecap="round"/>`;
-      for(let j=0;j<9;j++){
-        const k = clamp(b*10 - j - si*.4);
-        if(k<=0) continue;
-        const y = 198-h + j*5.2;
-        s += `<ellipse cx="${100+(j%2?3:-3)}" cy="${y}" rx="${3.4*k}" ry="${4.6*k}" fill="${j%3?'#8e6cc9':'#a487db'}"/>`;
-      }
-      s += `</g>`;
-    });
-    return s;
-  },
-  cactus(p){
-    const g = ease(seg(p,.03,.85));
-    const H = 18+100*g, w = 22+22*g, top = 198-H;
-    let s = '';
-    const a1 = ease(seg(p,.38,.6)), a2 = ease(seg(p,.52,.75));
-    if(a1>0){ const y=198-H*.42; s += `<path d="M100 ${y} L${100-w/2-14} ${y} L${100-w/2-14} ${y-30*a1}" stroke="#4f9a5b" stroke-width="15" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; }
-    if(a2>0){ const y=198-H*.6; s += `<path d="M100 ${y} L${100+w/2+12} ${y} L${100+w/2+12} ${y-24*a2}" stroke="#4f9a5b" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`; }
-    s += `<rect x="${100-w/2}" y="${top}" width="${w}" height="${H+2}" rx="${w/2}" fill="#5aa866"/>`;
-    s += `<path d="M100 ${top+6} L100 196 M${100-w*.25} ${top+10} L${100-w*.25} 196 M${100+w*.25} ${top+10} L${100+w*.25} 196" stroke="#3f8a4b" stroke-width="1.5" opacity=".55"/>`;
-    for(let i=1;i<6;i++){ const y = top + i*H/6; s += `<circle cx="${100-w*.38}" cy="${y}" r="1.2" fill="#e8f2d8"/><circle cx="${100+w*.38}" cy="${y+4}" r="1.2" fill="#e8f2d8"/>`; }
-    const b = ease(seg(p,.85,1));
-    if(b>0){
-      let pet='';
-      for(let i=0;i<7;i++) pet += `<ellipse cx="0" cy="-7" rx="3.6" ry="7" fill="#f27ca8" transform="rotate(${i*51.4})"/>`;
-      s += `<g transform="translate(100 ${top+2}) scale(${b})">${pet}<circle r="3.5" fill="#ffd166"/></g>`;
-    }
-    return s;
-  },
-  cherry(p){
-    const g = ease(seg(p,.03,.6));
-    const H = 14+96*g, tw = 3+8*g;
-    const top = 198-H;
-    let s = `<path d="M100 198 C ${92} ${198-H*.35}, ${110} ${198-H*.6}, ${100} ${top}" stroke="#7a4b2f" stroke-width="${tw}" fill="none" stroke-linecap="round"/>`;
-    const br = ease(seg(p,.3,.62));
-    const tips = [[100,top]];
-    if(br>0){
-      const y = 198-H*.62;
-      const L = [100-38*br, y-24*br], R = [100+34*br, y-30*br];
-      s += `<path d="M101 ${y} Q ${100-18*br} ${y-6*br} ${L[0]} ${L[1]}" stroke="#7a4b2f" stroke-width="${tw*.55}" fill="none" stroke-linecap="round"/>`;
-      s += `<path d="M101 ${y+6} Q ${100+16*br} ${y-4*br} ${R[0]} ${R[1]}" stroke="#7a4b2f" stroke-width="${tw*.5}" fill="none" stroke-linecap="round"/>`;
-      tips.push(L,R);
-    }
-    const f = ease(seg(p,.35,.8)), b = ease(seg(p,.75,1));
-    if(f>0){
-      const blobs = [];
-      tips.forEach(([x,y],i)=>{
-        const r = (i?20:24)*f;
-        blobs.push([x,y,r],[x-r*.7,y+r*.3,r*.75],[x+r*.7,y+r*.25,r*.7]);
-      });
-      blobs.forEach(([x,y,r])=> s += `<circle cx="${x}" cy="${y}" r="${r}" fill="#6db36a"/>`);
-      if(b>0){
-        blobs.forEach(([x,y,r])=> s += `<circle cx="${x}" cy="${y}" r="${r}" fill="#f6b3c8" opacity="${b}"/>`);
-        blobs.forEach(([x,y,r],i)=>{ for(let j=0;j<3;j++){ const a=(i*2.3+j*2.1); s += `<circle cx="${x+Math.cos(a)*r*.55}" cy="${y+Math.sin(a)*r*.55}" r="${2.4*b}" fill="#e57a9e"/>`; } });
-      }
-    }
-    return s;
-  },
-  fern(p){
-    let s='';
-    const fr = [[-38,.0,.9],[38,.08,.85],[-14,.16,1],[16,.24,.95],[-62,.34,.7],[60,.42,.7],[0,.5,.8]];
-    fr.forEach(([ang,start,len])=>{
-      const k = ease(seg(p,start+.02,start+.5));
-      if(k<=0) return;
-      const L = 100*len*k;
-      // curl at tip while unfurling
-      const curl = (1-k)*14;
-      s += `<g transform="rotate(${ang} 100 198)">
-        <path d="M100 198 Q ${100+L*.12} ${198-L*.6} ${100+curl} ${198-L}" stroke="#3f8a43" stroke-width="2" fill="none" stroke-linecap="round"/>`;
-      const n = Math.floor(9*k);
-      for(let j=1;j<=n;j++){
-        const t = j/10, y = 198-L*t, sz = 15*(1-t*.7)*Math.min(1,k*1.4);
-        s += leaf(100+L*.06*t,y,sz,1,-35,1,'#62b25e','#4a9548') + leaf(100+L*.06*t,y,sz,-1,-35,1,'#57a653','#4a9548');
-      }
-      if(k<1) s += `<circle cx="${100+curl}" cy="${198-L}" r="${3+curl*.25}" fill="none" stroke="#3f8a43" stroke-width="2"/>`;
-      s += `</g>`;
-    });
-    return s;
-  }
-};
-
-function plantSVG(type, p, {dead=false, sway=true, pot:withPot=true}={}){
-  const body = (p < 0.06 ? seedling(p) : '') + (p >= 0.02 ? DRAW[type](p) : '');
-  const droop = dead ? (type==='cactus'||type==='cherry' ? 6 : 22) : 0;
-  return `<svg viewBox="0 0 200 260" class="${dead?'dead':''}" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="100" cy="254" rx="52" ry="5" fill="#00000014"/>
-    <g class="plant"><g class="${sway&&!dead?'sway':''}"><g transform="rotate(${droop} 100 198)">${body}</g></g></g>
-    ${withPot?pot():''}
-  </svg>`;
-}
-
-/* ---------- state ---------- */
-let seed = store.get('seed','sunflower');
-if(!SEEDS[seed]) seed = 'sunflower';
+let seed = store.get('seed','sunflower'); if(!SEEDS[seed]) seed='sunflower';
+let usePot = store.get('pot',false);
 let minutes = store.get('minutes',25);
-let session = store.get('session',null); // {seed, minutes, start, end, hiddenAt}
-let ticker = null, wakeLock = null, audioCtx = null;
+let session = store.get('session',null);
+let ticker=null, wakeLock=null, audioCtx=null;
 
-function fmtDur(m){
-  if(m<60) return [m,'min'];
-  const h=Math.floor(m/60), r=m%60;
-  return r ? [`${h}:${String(r).padStart(2,'0')}`,'hours'] : [h, h===1?'hour':'hours'];
-}
-function fmtClock(ms){
-  const t = Math.max(0,Math.ceil(ms/1000));
-  const h=Math.floor(t/3600), m=Math.floor(t%3600/60), s=t%60;
-  const pad=n=>String(n).padStart(2,'0');
-  return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
-}
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
-}
+// history: one entry per session: {id, seed, pot, ok, p, minutes, focused, start, at, x, y}
+let history = store.get('history',[]);
+history.forEach((h,i)=>{ if(h.id==null) h.id = h.start||i; if(h.x===undefined){ h.x=null; h.y=null; } });
+const saveHistory = ()=> store.set('history',history);
+
+function fmtDur(m){ if(m<60) return [m,'min']; const h=Math.floor(m/60), r=m%60; return r?[`${h}:${String(r).padStart(2,'0')}`,'hours']:[h,h===1?'hour':'hours']; }
+function fmtClock(ms){ const t=Math.max(0,Math.ceil(ms/1000)), h=Math.floor(t/3600), m=Math.floor(t%3600/60), s=t%60, pad=n=>String(n).padStart(2,'0');
+  return h?`${h}:${pad(m)}:${pad(s)}`:`${pad(m)}:${pad(s)}`; }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id)); }
 
 /* ---------- home ---------- */
 function renderSeeds(){
-  $('seeds').innerHTML = Object.keys(SEEDS).map(k =>
-    `<button class="seed ${k===seed?'sel':''}" data-seed="${k}">${plantSVG(k,1,{sway:false})}${SEEDS[k].name}</button>`).join('');
-  $('preview').innerHTML = plantSVG(seed,1);
-  $('seedName').textContent = SEEDS[seed].name;
-  $('seedDesc').textContent = SEEDS[seed].desc;
+  $('seeds').innerHTML = Object.keys(SEEDS).map(k=>`<button class="seed ${k===seed?'sel':''}" data-seed="${k}">${closeupSVG(k,1,{pot:usePot,sway:false})}${SEEDS[k].name}</button>`).join('');
+  $('preview').innerHTML = closeupSVG(seed,1,{pot:usePot});
+  $('seedName').textContent = SEEDS[seed].name; $('seedDesc').textContent = SEEDS[seed].desc;
+  document.querySelectorAll('#where button').forEach(b=> b.classList.toggle('on', (b.dataset.pot==='1')===usePot));
 }
-function renderDur(){
-  const [v,u] = fmtDur(minutes);
-  $('durVal').textContent = v; $('durUnit').textContent = u;
-  $('dur').value = minutes;
-  $('dur').style.setProperty('--fill', ((minutes-5)/235*100)+'%');
-}
-$('seeds').addEventListener('click', e=>{
-  const b = e.target.closest('.seed'); if(!b) return;
-  seed = b.dataset.seed; store.set('seed',seed); renderSeeds();
-});
-$('dur').addEventListener('input', e=>{ minutes = +e.target.value; store.set('minutes',minutes); renderDur(); });
-document.querySelectorAll('.quick button').forEach(b=> b.addEventListener('click',()=>{ minutes=+b.dataset.m; store.set('minutes',minutes); renderDur(); }));
+function renderDur(){ const [v,u]=fmtDur(minutes); $('durVal').textContent=v; $('durUnit').textContent=u; $('dur').value=minutes; $('dur').style.setProperty('--fill',((minutes-5)/235*100)+'%'); }
+$('seeds').addEventListener('click', e=>{ const b=e.target.closest('.seed'); if(!b) return; seed=b.dataset.seed; store.set('seed',seed); renderSeeds(); });
+$('where').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; usePot = b.dataset.pot==='1'; store.set('pot',usePot); renderSeeds(); });
+$('dur').addEventListener('input', e=>{ minutes=+e.target.value; store.set('minutes',minutes); renderDur(); });
 
 /* ---------- session ---------- */
 function startSession(){
-  unlockAudio();
-  const now = Date.now();
-  session = {seed, minutes, start:now, end:now+minutes*60000, hiddenAt:null};
-  store.set('session',session);
-  enterGrow();
+  unlockAudio(); const now=Date.now();
+  session={seed, pot:usePot, minutes, start:now, end:now+minutes*60000, hiddenAt:null}; store.set('session',session);
+  show('grow'); requestWake(); clearInterval(ticker); ticker=setInterval(tick,500); lastDrawn=-1; tick();
 }
-function enterGrow(){
-  show('grow');
-  requestWake();
-  clearInterval(ticker);
-  ticker = setInterval(tick, 500);
-  tick();
-}
-function progress(){ return clamp((Date.now()-session.start)/(session.end-session.start)); }
-let lastDrawn = -1;
+const progress = ()=> clamp((Date.now()-session.start)/(session.end-session.start));
+let lastDrawn=-1;
 function tick(){
-  if(!session) return;
-  const now = Date.now();
-  const p = progress();
-  $('clock').textContent = fmtClock(session.end-now);
-  $('barFill').style.width = (p*100)+'%';
-  // redraw plant only when visibly changed
-  const q = Math.round(p*400);
-  if(q!==lastDrawn){ lastDrawn=q; $('growStage').innerHTML = plantSVG(session.seed,p); }
-  if(now >= session.end) finish(true);
+  if(!session) return; const now=Date.now(), p=progress();
+  $('clock').textContent = fmtClock(session.end-now); $('barFill').style.width=(p*100)+'%';
+  const q=Math.round(p*400); if(q!==lastDrawn){ lastDrawn=q; $('growStage').innerHTML = closeupSVG(session.seed,p,{pot:session.pot}); }
+  if(now>=session.end) finish(true);
 }
 function finish(ok, reason){
-  if(!session) return;
-  clearInterval(ticker); ticker=null; lastDrawn=-1;
-  releaseWake();
-  const p = ok ? 1 : progress();
-  const entry = {seed:session.seed, minutes:session.minutes, start:session.start, at:Date.now(), ok, p:+p.toFixed(3),
-                 focused: Math.round((ok ? session.minutes*60000 : Math.min(Date.now(),session.end)-session.start)/60000)};
-  const hist = store.get('history',[]); hist.push(entry); store.set('history',hist);
-  const s = session; session=null; store.del('session');
+  if(!session) return; clearInterval(ticker); ticker=null; releaseWake();
+  const s=session, p = ok?1:progress(), now=Date.now();
+  history.push({id:now, seed:s.seed, pot:!!s.pot, ok, p:+p.toFixed(3), minutes:s.minutes,
+    focused:Math.round((ok?s.minutes*60000:Math.min(now,s.end)-s.start)/60000), start:s.start, at:now, x:null, y:null});
+  saveHistory(); session=null; store.del('session');
   const name = SEEDS[s.seed].name.toLowerCase();
-  $('resultStage').innerHTML = plantSVG(s.seed, p, {dead:!ok});
-  if(ok){
-    $('resTitle').textContent = 'Fully grown! 🌱';
-    $('resText').textContent = `You stayed focused for ${fmtDur(s.minutes).join(' ')}. Your ${name} has been added to your garden.`;
-    chime();
-  } else {
-    $('resTitle').textContent = `Your ${name} withered`;
-    $('resText').textContent = reason || 'You gave up on this one. Next time it will grow.';
-  }
+  $('resultStage').innerHTML = closeupSVG(s.seed,p,{pot:s.pot,dead:!ok});
+  if(ok){ $('resTitle').textContent='Fully grown! 🌱'; $('resText').textContent=`You stayed focused for ${fmtDur(s.minutes).join(' ')}. Choose a spot for your ${name} in the garden.`; chime(); }
+  else { $('resTitle').textContent=`Your ${name} withered`; $('resText').textContent=(reason||'You gave up on this one.')+' It still gets a spot in your garden.'; }
   $('result').classList.add('show');
 }
 $('start').addEventListener('click', startSession);
 $('giveUp').addEventListener('click', ()=> $('confirm').classList.add('show'));
 $('keep').addEventListener('click', ()=> $('confirm').classList.remove('show'));
 $('reallyGiveUp').addEventListener('click', ()=>{ $('confirm').classList.remove('show'); finish(false); });
-$('resOk').addEventListener('click', ()=>{ $('result').classList.remove('show'); renderGarden(); show('garden'); });
+$('resOk').addEventListener('click', ()=>{ $('result').classList.remove('show'); openGarden(); });
 
 /* ---------- leaving the app kills the plant ---------- */
-function onHide(){
-  if(session && session.hiddenAt==null){ session.hiddenAt = Date.now(); store.set('session',session); }
-}
+function onHide(){ if(session && session.hiddenAt==null){ session.hiddenAt=Date.now(); store.set('session',session); } }
 function onShow(){
   if(!session) return;
   if(session.hiddenAt!=null){
-    const away = Date.now()-session.hiddenAt;
-    if(away > GRACE_MS){ finish(false, `You left the app for ${Math.round(away/1000)} seconds, so your plant died. Stay in the app until the timer ends.`); return; }
-    session.hiddenAt = null; store.set('session',session);
+    const away=Date.now()-session.hiddenAt;
+    if(away>GRACE_MS){ finish(false,`You left the app for ${Math.round(away/1000)} seconds, so your plant died.`); return; }
+    session.hiddenAt=null; store.set('session',session);
   }
   requestWake(); tick();
 }
-document.addEventListener('visibilitychange', ()=> document.hidden ? onHide() : onShow());
+document.addEventListener('visibilitychange', ()=> document.hidden?onHide():onShow());
 window.addEventListener('pagehide', onHide);
 window.addEventListener('pageshow', ()=>{ if(!document.hidden) onShow(); });
 
-/* ---------- keep screen awake ---------- */
-async function requestWake(){
-  try{ if('wakeLock' in navigator && !wakeLock && session){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } }catch(e){}
-}
-function releaseWake(){ try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock=null; }
-
-/* ---------- sound ---------- */
-function unlockAudio(){
-  try{ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume(); }catch(e){}
-}
-function chime(){
-  if(!audioCtx) return;
-  try{
-    const t0 = audioCtx.currentTime;
-    [523.25,659.25,783.99,1046.5].forEach((f,i)=>{
-      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.type='sine'; o.frequency.value=f;
-      g.gain.setValueAtTime(0,t0+i*.14); g.gain.linearRampToValueAtTime(.18,t0+i*.14+.02);
-      g.gain.exponentialRampToValueAtTime(.001,t0+i*.14+1.2);
-      o.connect(g).connect(audioCtx.destination); o.start(t0+i*.14); o.stop(t0+i*.14+1.3);
-    });
-  }catch(e){}
-}
+async function requestWake(){ try{ if('wakeLock' in navigator && !wakeLock && session){ wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); } }catch(e){} }
+function releaseWake(){ try{ wakeLock&&wakeLock.release(); }catch(e){} wakeLock=null; }
+function unlockAudio(){ try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume(); }catch(e){} }
+function chime(){ if(!audioCtx) return; try{ const t0=audioCtx.currentTime;
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=>{ const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t0+i*.14); g.gain.linearRampToValueAtTime(.18,t0+i*.14+.02); g.gain.exponentialRampToValueAtTime(.001,t0+i*.14+1.2);
+    o.connect(g).connect(audioCtx.destination); o.start(t0+i*.14); o.stop(t0+i*.14+1.3); }); }catch(e){} }
 
 /* ---------- garden ---------- */
-function renderGarden(){
-  const hist = store.get('history',[]).slice().reverse();
-  const today = new Date().toDateString();
-  const todayMin = hist.filter(h=>h.ok && new Date(h.at).toDateString()===today).reduce((a,h)=>a+h.minutes,0);
-  const grown = hist.filter(h=>h.ok).length;
-  const total = hist.filter(h=>h.ok).reduce((a,h)=>a+h.minutes,0);
-  $('stToday').textContent = todayMin;
-  $('stGrown').textContent = grown;
+const placed = ()=> history.filter(h=>SEEDS[h.seed] && h.x!=null);
+const pending = ()=> history.filter(h=>SEEDS[h.seed] && h.x==null);
+let lifted=null; // {entry, dx, dy} while moving a plant
+
+function renderStats(){
+  const today=new Date().toDateString(), ok=history.filter(h=>h.ok);
+  $('stToday').textContent = ok.filter(h=>new Date(h.at).toDateString()===today).reduce((a,h)=>a+h.minutes,0);
+  $('stGrown').textContent = ok.length;
+  const total = ok.reduce((a,h)=>a+h.minutes,0);
   $('stTotal').textContent = total>=60 ? (total/60).toFixed(total%60?1:0)+'h' : total+'m';
-  if(!hist.length){ $('gardenList').innerHTML = `<div class="empty">Your garden is still empty.<br>Plant your first seed to start growing.</div>`; return; }
-  const groups = {};
-  hist.forEach(h=>{ const d=new Date(h.at); const key=d.toDateString(); (groups[key]=groups[key]||[]).push(h); });
-  const label = key => { const d=new Date(key), y=new Date(); y.setDate(y.getDate()-1);
-    return key===today ? 'Today' : key===y.toDateString() ? 'Yesterday' : d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}); };
-  $('gardenList').innerHTML = Object.keys(groups).map(k=>`
-    <div class="day">${label(k)}</div>
-    <div class="grid">${groups[k].map(h=>`
-      <div class="tile">${plantSVG(h.seed, h.ok?1:h.p, {dead:!h.ok, sway:false})}
-        <b>${SEEDS[h.seed]?.name||h.seed}</b>${h.ok ? fmtDur(h.minutes).join(' ') : 'withered'} · ${new Date(h.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
-      </div>`).join('')}</div>`).join('');
 }
-$('toGarden').addEventListener('click', ()=>{ renderGarden(); show('garden'); });
+let drawQueued=false;
+function renderPlot(){
+  if(drawQueued) return; drawQueued=true;
+  requestAnimationFrame(()=>{ drawQueued=false; $('plotSvg').innerHTML = gardenSVG(placed(), lifted&&lifted.entry.id); });
+}
+function renderBanner(){
+  const next = pending()[0];
+  if(next){ const n=SEEDS[next.seed].name.toLowerCase();
+    $('banner').textContent = next.ok ? `Tap the grass to plant your ${n}` : `Tap the grass to place your withered ${n}`; }
+  $('banner').classList.toggle('show', !!next);
+  $('gardenHint').textContent = next ? 'Higher up is further back, so plants there look smaller.'
+                              : placed().length ? 'Hold a plant to move it.' : 'Your garden is still empty. Plant your first seed to start growing.';
+}
+function openGarden(){ renderStats(); renderBanner(); renderPlot(); show('garden'); }
+$('toGarden').addEventListener('click', openGarden);
 $('back').addEventListener('click', ()=> show('home'));
+
+// pointer -> scene coordinates
+function scenePt(ev){ const r=$('plot').getBoundingClientRect(); return {x:(ev.clientX-r.left)/r.width*260, y:(ev.clientY-r.top)/r.height*260}; }
+// keep the whole plant inside the garden (tall plants can't go all the way to the back)
+function clampPos(x,y,e){
+  x=clamp(x,6,254); y=clamp(y,40,254);
+  while(y<254 && placedBox({...e,x,y}).y1<3) y+=1;
+  return {x,y};
+}
+function plantAt(pt){
+  // front-most plant whose box contains the point
+  return placed().filter(e=>{ const b=placedBox(e), m=4; return pt.x>=b.x1-m && pt.x<=b.x2+m && pt.y>=b.y1-m && pt.y<=b.y2+m; })
+                 .sort((a,b)=>b.y-a.y)[0];
+}
+let press=null;
+$('plot').addEventListener('pointerdown', ev=>{
+  const pt=scenePt(ev);
+  press={pt, id:ev.pointerId, timer:null};
+  const target = pending().length ? null : plantAt(pt);
+  if(target){
+    press.timer = setTimeout(()=>{
+      lifted={entry:target, dx:target.x-pt.x, dy:target.y-pt.y};
+      $('plot').setPointerCapture(press.id);
+      $('gardenHint').textContent='Drag to move, let go to plant it here.';
+      if(navigator.vibrate) navigator.vibrate(10);
+      renderPlot();
+    }, 420);
+  }
+});
+$('plot').addEventListener('pointermove', ev=>{
+  if(!press) return; const pt=scenePt(ev);
+  if(!lifted){ if(Math.hypot(pt.x-press.pt.x, pt.y-press.pt.y)>4){ clearTimeout(press.timer); } return; }
+  const p=clampPos(pt.x+lifted.dx, pt.y+lifted.dy, lifted.entry); lifted.entry.x=+p.x.toFixed(1); lifted.entry.y=+p.y.toFixed(1); renderPlot();
+});
+function endPress(ev){
+  if(!press) return; clearTimeout(press.timer);
+  const pt=scenePt(ev), moved=Math.hypot(pt.x-press.pt.x, pt.y-press.pt.y);
+  if(lifted){ lifted=null; saveHistory(); renderBanner(); renderPlot(); }
+  else if(pending().length && moved<10){
+    const e=pending()[0], p=clampPos(pt.x,pt.y,e); e.x=+p.x.toFixed(1); e.y=+p.y.toFixed(1);
+    saveHistory(); renderBanner(); renderPlot();
+  }
+  press=null;
+}
+$('plot').addEventListener('pointerup', endPress);
+$('plot').addEventListener('pointercancel', ()=>{ if(press) clearTimeout(press.timer); if(lifted){ lifted=null; saveHistory(); renderPlot(); } press=null; });
+$('plot').addEventListener('contextmenu', e=>e.preventDefault());
 
 /* ---------- boot ---------- */
 renderSeeds(); renderDur();
-if(session){
-  // The app was closed or reloaded during a session: it counts as leaving.
-  finish(false, 'The app was closed while your plant was growing, so it died.');
-}
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+if(session) finish(false,'The app was closed while your plant was growing, so it died.');
+else if(pending().length) openGarden();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>

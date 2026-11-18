@@ -1,7 +1,10 @@
 # Focus Garden
 
-A small focus timer for iPhone. Pick a seed, set a timer between 5 minutes and 4 hours, and watch the plant grow.
-If you leave the app before the timer ends, the plant dies.
+A small focus timer for iPhone. Pick a seed and whether to grow it in the earth or in a pot, set a timer
+between 5 minutes and 4 hours, and watch the plant grow. If you leave the app before the timer ends, the plant withers.
 
-It is an installable web app, so there's no App Store and no Xcode. Open the GitHub Pages URL in Safari, then choose
-Share → Add to Home Screen. Your garden is stored on the phone only.
+Every plant, grown or withered, goes into your own garden: tap the grass to choose its spot, and hold a plant
+to move it later. Plants further back look smaller, and they can stand behind the table and chairs.
+
+It is an installable web app, so there's no App Store and no Xcode. Open https://margauxmaenen-spec.github.io/focus-garden
+in Safari, then choose Share → Add to Home Screen. Your garden is stored on the phone only.
